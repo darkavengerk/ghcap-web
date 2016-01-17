@@ -25,7 +25,6 @@ def tokenize(source):
 			made.append(word)
 	return made
 
-
 def milliseconds(time_object):
 	return (((time_object.hours * 60) + time_object.minutes) * 60 + time_object.seconds) * 1000 + time_object.milliseconds;
 
