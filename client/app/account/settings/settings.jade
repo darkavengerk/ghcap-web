@@ -28,7 +28,7 @@ navbar
             ng-model='vm.user.confirmPassword'
             match="vm.user.newPassword"
             ng-minlength='3', required='')
-          p.help-block(ng-show='fvm.orm.confirmPassword.$error.match && vm.submitted')
+          p.help-block(ng-show='form.confirmPassword.$error.match && vm.submitted')
             | Passwords must match.
 
         p.help-block  {{ vm.message }}

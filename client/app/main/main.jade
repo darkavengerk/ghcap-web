@@ -1,26 +1,35 @@
 navbar
 
-header#banner.hero-unit
-  .container
-    h1 Hello YuJung!
-    p.lead Kick-start your next web app with Angular Fullstack
-    img(src='assets/images/yeoman.png', alt='I\'m Yeoman')
-
-.container
+.container(ng-show="main.mode === 'title'")
   .row
-    .col-lg-12
-      h1.page-header Features:
-      ul.nav.nav-tabs.nav-stacked.col-md-4.col-lg-4.col-sm-6(ng-repeat='thing in main.awesomeThings')
-        li
-          a(href='#', tooltip='{{thing.info}}')
-            | {{thing.name}}
-            button.close(type='button', ng-click='main.deleteThing(thing)') &times;
+    .col-xs-12(ng-repeat="media in main.media")
+      a.btn(ng-click="main.mediaSelected(media._id)") {{media.title}}
 
-  form.thing-form
-    label Syncs in realtime across clients
-    p.input-group
-      input.form-control(type='text', placeholder='Add a new thing here.', ng-model='main.newThing')
-      span.input-group-btn
-        button.btn.btn-primary(type='submit', ng-click='main.addThing()') Add New
+.container(ng-show="main.mode === 'media'")
+  .row
+    .col-xs-6
+      a.btn(ng-click="main.mode = 'title'") Back
+  .row  
+    .col-xs-12
+      .row
+        ul.col-xs-12(infinite-scroll="main.loadMoreWords()", infinite-scroll-distance="1")
+          .row(ng-repeat='item in main.wordList')
+            li.nav.nav-tabs.nav-stacked.col-md-4.col-lg-4.col-sm-6.col-xs-12
+              .col-md-4.col-sm-5.col-sm-6.col-xs-6(style="text-align:left;")
+                .row
+                  a.col-xs-12.btn.btn-primary.word-item(href='#', ng-click="main.showSentences(item)") {{item[0]}}
+              .col-xs-3.list-text
+                a {{item[1]}}
+              .col-xs-3(ng-show="main.isLoggedIn")
+                button.close(type='button', ng-click='main.deleteThing(thing)') &times;
+              .col-xs-12(ng-show='item.sentences', ng-repeat="sentence in item.sentences")
+                a {{sentence.text}}
+    .col-xs-12(style="text-align:center")
+      a.btn(ng-show="main.wordList.length", ng-click="main.loadMoreWords()") More
 
-footer
+.container(ng-show="main.mode === 'sentence'")
+  .row
+    .col-xs-12
+      a.btn(ng-click="main.mode = 'media'") Back
+    .col-xs-12(ng-repeat="sentence in main.sentences")
+      a.btn {{sentence.text}}

@@ -4,7 +4,10 @@
 
 'use strict';
 
+var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 var DataEvents = require('./data.events');
+var Data = require('./data.model');
+var Sentence = mongoose.model('Sentence');
 var _ = require('lodash');
 
 // Model events to emit
@@ -19,21 +22,63 @@ export function register(socket) {
     DataEvents.on(event, listener);
     socket.on('disconnect', removeListener(event, listener));
 
-    socket.on('data:save', function(data, fn) {
-      console.log(data.title);
-      var wordMap = {};
-      _.forEach(data.raw, function(data, index) {
-        var words = data.words;
-        var text = data.text;
-        _.forEach(words, function(word) {
-          if(!wordMap[word]) wordMap[word] = 0;
-          wordMap[word] += 1;
-        });
-      });
-      console.log(wordMap);
-      if(fn) fn({result:'ok'});
-    });
   }
+  socket.on('data:save', function(data, fn) {
+    console.log('Saving a doc', data.title, data.type);
+    var wordMap = {};
+    var sentences = [];
+    var spokenTime = 0;
+    var wordCount = 0;
+
+    _.forEach(data.raw, function(data, index) {
+      var words = data.words;
+      var text = data.text;
+      spokenTime += data.duration;
+      wordCount += data.count;
+      _.forEach(words, function(word) {
+        if(!wordMap[word]) wordMap[word] = 0;
+        wordMap[word] += 1;
+      });
+    });
+
+    var population = _.pairs(wordMap);
+    population = _.sortBy(population, function(item) {
+      return item[1] * -1;
+    });
+
+    var media = new Data({
+      title : data.title,
+      type : data.type,
+      wordCount : wordCount,
+      speakingTime : spokenTime,
+      averageSpeed : wordCount/spokenTime * 1000,
+      population : population
+    });
+
+    var sentences = _.map(data.raw, function(data, index) {
+      var words = data.words;
+      var text = data.text;
+      return {
+        text : text,
+        words : words,
+        source : media._id,
+        index : index,
+        subtitleInfo : {
+          start : data.start,
+          end : data.end,
+          speed : data.count / data.duration * 1000
+        }
+      };
+    });
+
+    media.save(function(err, result) {
+      console.log('Done creating a media :', err);
+      Sentence.create(sentences, function(err, result) {
+        console.log('Done creating sentences: ', err);
+        if(fn) fn({result:'ok'});
+      });
+    });
+  });
 }
 
 

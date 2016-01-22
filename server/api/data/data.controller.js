@@ -11,6 +11,8 @@
 
 import _ from 'lodash';
 var Data = require('./data.model');
+var mongoose = require('bluebird').promisifyAll(require('mongoose'));
+var Sentence = mongoose.model('Sentence');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -24,6 +26,19 @@ function responseWithResult(res, statusCode) {
   return function(entity) {
     if (entity) {
       res.status(statusCode).json(entity);
+    }
+  };
+}
+
+function responseWithSentenceResult(res, statusCode) {
+  statusCode = statusCode || 200;
+  return function(entity) {
+    if (entity) {
+      entity = entity.toObject();
+      Sentence.find({source : entity._id}, function(err, sentences) {
+        entity.sentences = sentences;
+        res.status(statusCode).json(entity);
+      })
     }
   };
 }
@@ -61,7 +76,7 @@ function removeEntity(res) {
 
 // Gets a list of Datas
 export function index(req, res) {
-  Data.findAsync()
+  Data.findAsync({}, {population:false})
     .then(responseWithResult(res))
     .catch(handleError(res));
 }
@@ -70,7 +85,7 @@ export function index(req, res) {
 export function show(req, res) {
   Data.findByIdAsync(req.params.id)
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(responseWithSentenceResult(res))
     .catch(handleError(res));
 }
 

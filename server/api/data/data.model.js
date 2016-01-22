@@ -2,10 +2,30 @@
 
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 
-var DataSchema = new mongoose.Schema({
-  name: String,
-  info: String,
-  active: Boolean
+var MediaSchema = new mongoose.Schema({
+  title: String,
+  type: String,
+  population: [mongoose.Schema.Types.Mixed],
+  wordCount : Number,
+  speakingTime : Number,
+  averageSpeed : Number,
+  averageWords : Number
 });
 
-export default mongoose.model('Data', DataSchema);
+var SentenceSchema = new mongoose.Schema({
+  text: String,
+  words: [String],
+  source: {
+  	type : mongoose.Schema.ObjectId,
+  	ref : 'Media'
+  },
+  index : Number,
+  subtitleInfo : {
+  	start : String, 
+  	end : String,
+  	speed : Number  //seconds
+  }
+});
+mongoose.model('Sentence', SentenceSchema);
+
+export default mongoose.model('Media', MediaSchema);
