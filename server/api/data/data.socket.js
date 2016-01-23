@@ -4,10 +4,11 @@
 
 'use strict';
 
-var mongoose = require('bluebird').promisifyAll(require('mongoose'));
+var db = require('./data.model');
 var DataEvents = require('./data.events');
-var Data = require('./data.model');
-var Sentence = mongoose.model('Sentence');
+var Data = db.model('Media');
+var Sentence = db.model('Sentence');
+var Misc = db.model('Misc');
 var _ = require('lodash');
 
 // Model events to emit
@@ -23,6 +24,19 @@ export function register(socket) {
     socket.on('disconnect', removeListener(event, listener));
 
   }
+
+  socket.on('media:get', function(query, fn) {
+    Data.find(query, function(err, result) {
+      fn(result);
+    });
+  });
+
+  socket.on('misc:save common words', function(words, fn) {
+    Misc.update({title:'common-words'}, {title:'common-words', data:words}, {upsert:true}, function(err, result) {
+      fn([err, result]);
+    });
+  });
+
   socket.on('data:save', function(data, fn) {
     console.log('Saving a doc', data.title, data.type);
     var wordMap = {};

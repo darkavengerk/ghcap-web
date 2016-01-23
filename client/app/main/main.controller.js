@@ -13,6 +13,8 @@ class MainController {
     this.currentUser = Auth.getCurrentUser();
     this.mode = 'title';
 
+    console.log(this.isLoggedIn);
+
     $http.get('/api/things').then(response => {
       this.awesomeThings = response.data;
       socket.syncUpdates('thing', this.awesomeThings);
@@ -46,15 +48,20 @@ class MainController {
   }
 
   showSentences(item) {
-    var word = item[0];
-    var source = this.selectedMedia.sentences;
-    var sentences = [];
-    _.forEach(source, function(sentence) {
-      if(sentence.words.indexOf(word) !== -1) {
-        sentences.push(sentence);
-      }
-    });
-    item.sentences = sentences;
+    if(item.sentences) {
+      item.sentences = undefined;
+    }
+    else {
+      var word = item[0];
+      var source = this.selectedMedia.sentences;
+      var sentences = [];
+      _.forEach(source, function(sentence) {
+        if(sentence.words.indexOf(word) !== -1) {
+          sentences.push(sentence);
+        }
+      });
+      item.sentences = sentences;
+    }
   }
 }
 

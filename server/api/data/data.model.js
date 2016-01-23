@@ -11,6 +11,7 @@ var MediaSchema = new mongoose.Schema({
   averageSpeed : Number,
   averageWords : Number
 });
+mongoose.model('Media', MediaSchema);
 
 var SentenceSchema = new mongoose.Schema({
   text: String,
@@ -28,4 +29,12 @@ var SentenceSchema = new mongoose.Schema({
 });
 mongoose.model('Sentence', SentenceSchema);
 
-export default mongoose.model('Media', MediaSchema);
+
+var MiscSchema = new mongoose.Schema({
+  title: String,
+  data: mongoose.Schema.Types.Mixed,
+});
+mongoose.model('Misc', MiscSchema);
+
+
+export default mongoose;

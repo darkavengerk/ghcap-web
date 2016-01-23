@@ -10,9 +10,9 @@
 'use strict';
 
 import _ from 'lodash';
-var Data = require('./data.model');
-var mongoose = require('bluebird').promisifyAll(require('mongoose'));
-var Sentence = mongoose.model('Sentence');
+var db = require('./data.model');
+var Data = db.model('Media');
+var Sentence = db.model('Sentence');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -77,6 +77,13 @@ function removeEntity(res) {
 // Gets a list of Datas
 export function index(req, res) {
   Data.findAsync({}, {population:false})
+    .then(responseWithResult(res))
+    .catch(handleError(res));
+}
+
+// Gets a list of Datas
+export function all(req, res) {
+  Data.findAsync()
     .then(responseWithResult(res))
     .catch(handleError(res));
 }

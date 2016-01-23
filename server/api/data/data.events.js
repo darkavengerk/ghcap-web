@@ -5,7 +5,7 @@
 'use strict';
 
 import {EventEmitter} from 'events';
-var Data = require('./data.model');
+var Data = require('./data.model').model('Media');
 var DataEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
